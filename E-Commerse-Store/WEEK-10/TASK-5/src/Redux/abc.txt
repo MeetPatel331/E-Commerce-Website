@@ -1,0 +1,498 @@
+import { useFormik } from "formik";
+import React, { useEffect, useState } from "react";
+import { FaCcDiscover, FaCcMastercard, FaCcVisa } from "react-icons/fa";
+import { MdOutlineShoppingBag } from "react-icons/md";
+import { SiAmericanexpress } from "react-icons/si";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import * as Yup from "yup";
+import { fixingPrice } from "../components/RemovingDuplicate";
+import axios from "axios";
+import { useCart } from "../components/CartProvider";
+import { CardElement, Elements, useElements, useStripe,PaymentElement } from "@stripe/react-stripe-js";
+import StripePayment from "./StripePayment";
+import { loadStripe } from "@stripe/stripe-js";
+const stripePromise = loadStripe("pk_test_51QrZQjRsLvU29ywLCYaTBkil7DdpMb1E62Pwh7MFMI3L27zMFiY9VWLeR2wKTVhbbkS0M2ZQ0lgbARlepsanAwaz00i46qB47L");
+
+
+
+const TotalQuantity = (cart) => {
+  let c = 0;
+  for (let i of cart) {
+    c += parseInt(i.quantity);
+  }
+  return c;
+};
+const Checkout = () => {
+  const [loading, SetLoading] = useState(false);
+  const [loading2, SetLoading2] = useState(false);
+  const { cart, total } = useCart()
+  const [cartData, SetCart] = useState([])
+  const [totalprice, SetTotal] = useState(0)
+  const [card, SetCard] = useState({
+    credit: true,
+    paypal: false,
+    shoppay: false,
+  });
+  const [method, SetMethod] = useState("CreditCart");
+  const navigate = useNavigate();
+  const stripe = useStripe();
+  const [clientSecret, setClientSecret] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const elements = useElements();
+  const [processing, setProcessing] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    async function getClientSecret(total) {
+      try {
+        const { data } = await axios.post(
+          `http://localhost:3000/payment/payment/create?total=${total * 100}`
+        );
+        setClientSecret(data.clientSecret);
+      } catch (error) {
+        setErrorMsg(error.message);
+      }
+    }
+    getClientSecret(100);
+    window.scrollTo(0, 0);
+    SetLoading(true)
+    setTimeout(() => {
+      SetCart(cart)
+      SetTotal(total)
+      SetLoading(false)
+    }, 700)
+  }, []);
+  useEffect(() => {
+    SetCart(cart)
+    SetTotal(total)
+  }, [cart])
+  const CARD_OPTIONS = {
+    iconStyle: "solid",
+    style: {
+      base: {
+        iconColor: "black",
+        color: "black",
+        fontWeight: 500,
+        fontFamily: "Roboto, Open Sans, Segoe UI, sans-serif",
+        fontSize: "16px",
+        fontSmoothing: "antialiased",
+        ":-webkit-autofill": { color: "#fce883" },
+        "::placeholder": { color: "#87bbfd" },
+      },
+      invalid: {
+        iconColor: "red",
+        color: "red",
+      },
+    },
+  };
+
+
+  const InfoSchema = Yup.object({
+    firstname: Yup.string()
+      .matches(/^[A-Za-z]+$/, "First name must not contain numbers")
+      .required("firstname is required"),
+    lastname: Yup.string()
+      .matches(/^[A-Za-z]+$/, "Last name must not contain numbers")
+      .required("lastname is required"),
+    company: Yup.string().required("company name is required"),
+    apartment: Yup.string().required("apartment is required"),
+    address: Yup.string().required("Address is required"),
+    city: Yup.string().required("city is required"),
+    country: Yup.string().required("country is required"),
+    zip: Yup.string()
+      .matches(/[0-9]$/, "Invalid Format")
+      .required("zip code is required"),
+    phone: Yup.string()
+      .matches(/^[6-9]\d{9}$/, "Invalid Format")
+      .length(10, "mobile number should be length of 10")
+      .required("contact is required"),
+    email: Yup.string().email("Invalid Format").required("Email is required"),
+    confirm: Yup.bool().oneOf(
+      [true],
+      "You need to accept the terms and conditions"
+    ),
+    card: Yup.object().required('Card is required'),
+  });
+  const address = useFormik({
+    initialValues: {
+      email: "",
+      firstname: "",
+      lastname: "",
+      company: "",
+      address: "",
+      apartment: "",
+      city: "",
+      country: "",
+      zip: "",
+      phone: "",
+      confirm: false,
+      card: null
+    },
+    validationSchema: InfoSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      setSubmitting(true)
+      console.log('hy')
+      if (!stripe || !elements) {
+        console.log('enter')
+        return;
+      }
+      setProcessing(true);
+      await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(PaymentElement),
+        },
+      })
+        .then(({ paymentIntent }) => {
+          setErrorMsg(false);
+          setProcessing(false);
+          console.log('hy')
+          setSuccess(true);
+          axios.post('http://localhost:3000/order/addorder', { ...values, userId: localStorage.getItem('userId') }, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            }
+          }).then((res) => {
+            navigate("/confirm");
+          }).catch((err) => {
+            console.log(err)
+          })
+        })
+        .catch((error) => {
+          console.log(error)
+          setErrorMsg(error.message);
+          setProcessing(false);
+          setSuccess(false);
+        });
+      setSubmitting(false)
+    },
+  });
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+    await address.submitForm();
+  };
+
+  return (
+    <div className="fullCart" style={{ marginTop: '0' }}>
+      {
+        !loading ?
+          <>
+            {cartData.length === 0 ? (
+              <div className="EmptyCart">
+                <h1>Your Cart is empty</h1>
+                <button
+                  onClick={() => {
+                    navigate("/products");
+                  }}
+                >
+                  CONTINUE SHOPPING
+                </button>
+                <h2>Have an Account ? </h2>
+                <p>
+                  <span onClick={() => navigate('/login')}>Log in </span>to check faster
+                </p>
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    borderBottom: "1px solid lightgray",
+                  }}
+                >
+                  <div className="header">
+                    <h2 onClick={() => navigate('/')}>South Texas Slings</h2>
+                    <button onClick={() => navigate('/cart')}>
+                      <MdOutlineShoppingBag />
+                    </button>
+                  </div>
+                </div>
+                <div className="checkout">
+                  <form action="">
+                    <div className="payment">
+                      <div className="contact">
+                        <div
+                          style={{ display: "flex", justifyContent: "space-between" }}
+                        >
+                          <h2>Contact</h2>
+                          <h4>
+                            <Link href="" to='/login'>Log in</Link>
+                          </h4>
+                        </div>
+                        <div>
+                          <input
+                            type="email"
+                            name="email"
+                            onChange={address.handleChange}
+                            placeholder="Email"
+                            value={address.values.email}
+                          />
+                          {address.errors.email && <span>{address.errors.email}</span>}
+                        </div>
+                        <label htmlFor="check">
+                          <input
+                            type="checkbox"
+                            id="check"
+                            name="confirm"
+                            onChange={address.handleChange}
+                          />
+                          &nbsp; Email me with news and offers
+                        </label>
+                        {address.errors.confirm && (
+                          <span>{address.errors.confirm}</span>
+                        )}
+                      </div>
+                      <div className="delivery">
+                        <h2>Delivery</h2>
+                        <div className="country">
+                          <input
+                            type="text"
+                            name="firstname"
+                            onChange={address.handleChange}
+                            placeholder="First Name"
+                          />
+                          {address.errors.firstname && (
+                            <span>{address.errors.firstname}</span>
+                          )}
+                        </div>
+                        <div className="country">
+                          <input
+                            type="text"
+                            name="lastname"
+                            onChange={address.handleChange}
+                            placeholder="Last Name"
+                          />
+                          {address.errors.lastname && (
+                            <span>{address.errors.lastname}</span>
+                          )}
+                        </div>
+                        <div className="country">
+                          <input
+                            type="text"
+                            name="company"
+                            onChange={address.handleChange}
+                            placeholder="Company"
+                          />
+                          {address.errors.company && (
+                            <span>{address.errors.company}</span>
+                          )}
+                        </div>
+                        <div className="country">
+                          <input
+                            type="text"
+                            name="address"
+                            onChange={address.handleChange}
+                            placeholder="Address"
+                          />
+                          {address.errors.address && (
+                            <span>{address.errors.address}</span>
+                          )}
+                        </div>
+                        <div className="country">
+                          <input
+                            type="text"
+                            name="apartment"
+                            onChange={address.handleChange}
+                            placeholder="Apartment,suite etc"
+                          />
+                          {address.errors.apartment && (
+                            <span>{address.errors.apartment}</span>
+                          )}
+                        </div>
+                        <div
+                          className="country2"
+                        >
+                          <div>
+                            <input
+                              type="text"
+                              name="city"
+                              onChange={address.handleChange}
+                              placeholder="City"
+                            />
+                            {/* {address.errors.city && <span>{address.errors.city}</span>} */}
+                            <span>
+                              {address.errors.city &&
+                                address.errors.city
+                              }
+                            </span>
+                          </div>
+                          <div>
+                            <select
+                              name="country"
+                              onChange={address.handleChange}
+                              id=""
+                            >
+                              <option value="" selected disabled hidden>
+                                Country/Region
+                              </option>
+                              <option value="United States">United States</option>
+                            </select>
+                            <span>
+                              {address.errors.country &&
+                                address.errors.country
+                              }
+                            </span>
+                          </div>
+                          <div>
+                            <input
+                              type="number"
+                              name="zip"
+                              onChange={address.handleChange}
+                              placeholder="ZIP code"
+                            />
+                            <span>
+                              {address.errors.zip &&
+                                address.errors.zip
+                              }
+                            </span>
+                          </div>
+                        </div>
+                        <div className="country">
+                          <input
+                            type="number"
+                            name="phone"
+                            onChange={address.handleChange}
+                            placeholder="Phone"
+                          />
+                          {address.errors.phone && <span>{address.errors.phone}</span>}
+                        </div>
+                      </div>
+                      <div className="shipping">
+                        <h4>Shipping Method</h4>
+                        <div
+                          style={{
+                            backgroundColor: "lightgray",
+                            padding: "15px",
+                            color: "gray",
+                            borderRadius: "5px",
+                          }}
+                        >
+                          Enter your shipping address to view available shipping
+                          methods.
+                        </div>
+                      </div>
+                      <div className="paymentMethod">
+                        <h2>Payment</h2>
+                        <p>All transactions are secure and encrypted.</p>
+                        <div className="options">
+                          <div className="creditCartopt">
+                            <div style={{ alignContent: "center" }}>
+                              <input
+                                type="radio"
+                                name="options"
+                                checked={card.credit ? true : false}
+                                onClick={() => {
+                                  SetCard({
+                                    credit: true,
+                                    paypal: false,
+                                    shoppay: false,
+                                  });
+                                  SetMethod("CreditCard");
+                                }}
+                              />
+                              Credit Card
+                            </div>
+                            <ul
+                              style={{
+                                display: "flex",
+                                listStyle: "none",
+                                gap: "10px",
+                              }}
+                            >
+                              <li>
+                                <SiAmericanexpress />
+                              </li>
+                              <li>
+                                <FaCcDiscover />
+                              </li>
+                              <li>
+                                <FaCcMastercard />
+                              </li>
+                              <li>
+                                <FaCcVisa />
+                              </li>
+                            </ul>
+                          </div>
+                          <div style={{
+                            marginBlock: '5%'
+                          }}>
+                            {errorMsg && <div className="errorMsg">{errorMsg}</div>}
+                            {/* <CardElement id="card" name="card" options={CARD_OPTIONS} onChange={address.handleChange} onBlur={address.handleBlur} /> */}
+                            <PaymentElement id="payment-element" options={CARD_OPTIONS} />
+                            {address.touched.card && address.errors.card ? (
+                              <div>{address.errors.card}</div>
+                            ) : null}
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <button type="submit" onClick={(e) => {
+                          handleFormSubmit(e)
+                        }} className="btnpay" disabled={!stripe || processing || success || !elements}>{
+                            processing ? <div className="loader"></div> : `Pay With ${method}`
+                          }
+                        </button>
+                      </div>
+                      <div>
+                        <ul className="links">
+                          <li>
+                            <Link>Refund Policy</Link>
+                          </li>
+                          <li>
+                            <Link>Shipping Policy</Link>
+                          </li>
+                          <li>
+                            <Link>Privacy Policy</Link>
+                          </li>
+                          <li>
+                            <Link>terms of Service</Link>
+                          </li>
+                          <li>
+                            <Link>Contact Information</Link>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </form>
+                  <div className="products">
+                    <div className="cartproducts">
+                      {cartData &&
+                        cartData.map((item, index) => {
+                          return (
+                            <div key={index}>
+                              <img src={item.image} width={40} height={40} alt="" />
+                              <p>
+                                {String(item.title).slice(0, 65).concat('...')}{" "}
+                                <br />{" "}
+                                <span style={{ color: "gray" }}>{item.color}</span>
+                              </p>
+                              <p>${fixingPrice(item.price)}</p>
+                            </div>
+                          );
+                        })}
+                    </div>
+                    <div className="discounts">
+                      <div className="items">
+                        <div>
+                          <p>SubTotal : {TotalQuantity(cartData ? cartData : [])} items</p>
+                          <p>$ {fixingPrice(totalprice)}</p>
+                        </div>
+                        <div style={{ color: "#A97A5B" }}>
+                          <h3>Total</h3>
+                          <h3>USD ${fixingPrice(totalprice)}</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </> : <div style={{ display: 'grid', placeContent: 'center', height: '100vh' }}>
+            <div className="loader" style={{ background: 'hsl(204, 77%, 39%)' }}></div>
+          </div>
+      }
+    </div>
+  );
+};
+
+export default Checkout;
