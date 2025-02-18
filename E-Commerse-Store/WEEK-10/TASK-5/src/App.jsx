@@ -13,13 +13,11 @@ import Confirmed from './pages/Confirmed'
 import Profile from './pages/Profile'
 import { ToastContainer } from 'react-toastify'
 import "react-toastify/dist/ReactToastify.css";
-import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
 import UpdateProduct from './pages/UpdateProduct'
 import Notfound from './components/Notfound'
 import OrderHistory from './pages/OrderHistory'
 import Payment from './pages/Checkout'
-
 
 
 function App() {
