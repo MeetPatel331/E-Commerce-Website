@@ -1,12 +1,12 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { BASE_URL } from "../Config";
-
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [total, SetTotal] = useState(0)
+  const [loading, SetLoading] = useState(false)
   const userId = localStorage.getItem("userId");
 
   const countTotalPrice = (cart) => {
@@ -23,6 +23,7 @@ export const CartProvider = ({ children }) => {
       if (userId) {
         fetchCartFromDB();
       } else {
+        SetLoading(true)
         const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
         const fullData = await Promise.all(
           savedCart.map(async ({ productId, quantity }) => {
@@ -33,6 +34,7 @@ export const CartProvider = ({ children }) => {
         );
         setCart(fullData);
         SetTotal(countTotalPrice(cart))
+        SetLoading(false)
       }
     }
     fetch()
@@ -40,6 +42,7 @@ export const CartProvider = ({ children }) => {
 
 
   const fetchCartFromDB = async () => {
+    SetLoading(true)
     const res = await axios.post(`${BASE_URL}/cart/getCart?id=${localStorage.getItem('userId')}`, {}, {
       headers: {
         'Content-Type': 'application/json',
@@ -56,25 +59,29 @@ export const CartProvider = ({ children }) => {
       );
       SetTotal(countTotalPrice(fullData))
       setCart(fullData);
+      SetLoading(false)
     }
     else {
       setCart([])
       SetTotal(0)
+      SetLoading(false)
     }
   };
 
   // Add Item to Cart (Handles both LocalStorage & DB)
   const addToCart = async (productId, quantity) => {
     if (userId) {
+      SetLoading(true)
       await axios.post(`${BASE_URL}/cart/addcart`, { userId, productId, quantity }, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
+      SetLoading(false)
       fetchCartFromDB();
     } else {
-      // Save to LocalStorage
+      SetLoading(true)
       const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
       const itemIndex = savedCart.findIndex((item) => item.productId === productId);
 
@@ -94,25 +101,28 @@ export const CartProvider = ({ children }) => {
       );
       setCart(fullData);
       SetTotal(countTotalPrice(fullData))
+      SetLoading(false)
     }
   };
 
   // Update Cart Item
   const updateCartItem = async (productId, quantity) => {
     if (userId) {
+      SetLoading(true)
       await axios.put(`${BASE_URL}/cart/updatecart`, { userId, productId, quantity }, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`
         }
       });
+      SetLoading(false)
       fetchCartFromDB();
     } else {
+      SetLoading(true)
       const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
       const updatedCart = savedCart.map((item) =>
         item.productId === productId ? { ...item, quantity } : item
       );
-
       localStorage.setItem("cart", JSON.stringify(updatedCart));
       const fullData = await Promise.all(
         updatedCart.map(async ({ productId, quantity }) => {
@@ -123,10 +133,12 @@ export const CartProvider = ({ children }) => {
       );
       SetTotal(countTotalPrice(fullData))
       setCart(fullData);
+      SetLoading(false)
     }
   };
 
   const loginCart = async () => {
+    SetLoading(true)
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
     const userId = localStorage.getItem('userId');
     console.log(savedCart)
@@ -140,16 +152,20 @@ export const CartProvider = ({ children }) => {
       }
     }
     localStorage.removeItem('cart')
+    SetLoading(false)
     fetchCartFromDB()
   }
 
   const logout = () => {
+    SetLoading(true)
     localStorage.removeItem('cart')
     setCart([])
+    SetLoading(false)
   }
   // Remove Cart Item
   const removeFromCart = async (productId) => {
     if (userId) {
+      SetLoading(true)
       await axios.delete(`${BASE_URL}/cart/removeCartItem`, {
         headers: {
           'Content-Type': 'application/json',
@@ -159,8 +175,10 @@ export const CartProvider = ({ children }) => {
           productId, userId
         }
       });
+      SetLoading(false)
       fetchCartFromDB();
     } else {
+      SetLoading(true)
       const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
       const updatedCart = savedCart.filter((item) => item.productId !== productId);
 
@@ -174,11 +192,12 @@ export const CartProvider = ({ children }) => {
       );
       setCart(fullData);
       SetTotal(countTotalPrice(fullData))
+      SetLoading(false)
     }
   };
 
   return (
-    <CartContext.Provider value={{ cart, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
+    <CartContext.Provider value={{ cart, loading, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

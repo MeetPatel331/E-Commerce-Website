@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux'
 
 const Login = () => {
     const navigate = useNavigate()
+    const [loading, SetLoading] = useState(false)
     const { loginCart, BASE_URL } = useCart()
     const [data, setData] = useState({
         email: '', password: ''
@@ -26,6 +27,7 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault()
+        SetLoading(true)
         axios.post(`${BASE_URL}/auth/login`, data).then((res) => {
             console.log(res.data.role)
             if (res.data.role === 'admin') {
@@ -35,7 +37,8 @@ const Login = () => {
                 toast.success('SuccessFully Login ! ', {
                     position: 'top-right'
                 })
-                window.location.href = '/admin'
+                navigate('/admin')
+                SetLoading(false)
             }
             else {
                 localStorage.setItem('accessToken', res.data.accessToken)
@@ -46,10 +49,11 @@ const Login = () => {
                 })
                 loginCart()
                 navigate('/')
+                SetLoading(false)
             }
-
         }).catch((err) => {
             console.log(err)
+            SetLoading(false)
             setError(err.response.data.message)
         })
     }
@@ -68,7 +72,9 @@ const Login = () => {
                         <small style={{ textAlign: 'center', color: 'red' }}>{
                             error && error
                         }</small>
-                        <button className='loginbtn' onClick={(e) => handleSubmit(e)}>LOGIN</button>
+                        <button className='loginbtn' onClick={(e) => handleSubmit(e)}>{
+                            loading ? <div className="loader"></div> : 'LOGIN'
+                        }</button>
                         <p style={{ textAlign: 'center' }}>Don't Have An Account? <span><Link to='/signup' className='links2'>Create An Account</Link></span></p>
                     </form>
                 </div>

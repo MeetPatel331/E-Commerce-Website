@@ -19,7 +19,7 @@ const SinglePurchase = () => {
     const dispatch = useDispatch()
     const data = useSelector((state) => state.productReducer.product)
     const [q, Setq] = useState(1)
-    const { addToCart } = useCart()
+    const { addToCart, loading } = useCart()
     const images = [];
     let item;
     if (!localStorage.getItem('admin')) {
@@ -98,10 +98,12 @@ const SinglePurchase = () => {
                                 </button></p>
                             </div>
                             <div className='btns'>
-                                <button onClick={() => {
-                                    addToCart(item._id, q)
+                                <button onClick={async () => {
+                                    await addToCart(item._id, q)
                                     openCart()
-                                }}>BUY NOW</button>
+                                }}>{
+                                        loading ? <div className="loader"></div> : 'BUY NOW'
+                                    }</button>
                                 <button style={{
                                     backgroundColor: 'blue'
                                 }}>Buy with SHOP Pay</button>

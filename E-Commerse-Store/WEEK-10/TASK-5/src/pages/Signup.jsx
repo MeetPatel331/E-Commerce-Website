@@ -10,7 +10,8 @@ import { useCart } from '../components/CartProvider'
 
 const Signup = () => {
     const dispatch = useDispatch()
-    const { loginCart,BASE_URL } = useCart()
+    const [loading, SetLoading] = useState(false)
+    const { loginCart, BASE_URL } = useCart()
     useEffect(() => {
         const token = localStorage.getItem('accessToken')
         const refreshToken = localStorage.getItem('refreshToken')
@@ -38,17 +39,20 @@ const Signup = () => {
         },
         validationSchema: validation,
         onSubmit: (values) => {
+            SetLoading(true)
             axios.post(`${BASE_URL}/auth/signup`, values).then((res) => {
                 console.log(res.data)
                 localStorage.setItem('accessToken', res.data.accessToken)
                 localStorage.setItem('refreshToken', res.data.refreshToekn)
-                localStorage.setItem('userId',res.data.id)
+                localStorage.setItem('userId', res.data.id)
                 toast.success('Successfully Signup', {
                     position: 'top-right'
                 })
+                SetLoading(false)
                 loginCart()
                 navigate('/')
             }).catch((err) => {
+                SetLoading(false)
                 console.log(err)
                 toast.error(err.response.data.message, {
                     position: 'top-right'
@@ -104,7 +108,9 @@ const Signup = () => {
                             }
 
                         </div>
-                        <button className='loginbtn' style={{ marginTop: '20px' }} onClick={formik.handleSubmit}>SIGNUP</button>
+                        <button className='loginbtn' style={{ marginTop: '20px' }} onClick={formik.handleSubmit}>{
+                            loading ? <div className="loader"></div> : 'SIGNUP'
+                        }</button>
                         <p style={{ textAlign: 'center' }}>Already Have An Account? <span><Link className='links2' to='/login'>Login</Link></span></p>
                     </form>
                 </div>

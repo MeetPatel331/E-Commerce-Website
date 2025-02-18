@@ -39,16 +39,20 @@ const OrderHistory = () => {
     const { BASE_URL } = useCart()
     const [data, SetData] = useState([])
     const token = localStorage.getItem('accessToken')
+    const [loading, SetLoading] = useState(false)
     useEffect(() => {
+        SetLoading(true)
         axios.post(`${BASE_URL}/order/getorderhistory`, { userId: localStorage.getItem('userId') }, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
             }
         }).then((res) => {
+            SetLoading(false)
             SetData(res.data)
             console.log(res.data)
         }).catch((err) => {
+            SetLoading(false)
             console.log(err)
         })
     }, [])
@@ -57,7 +61,7 @@ const OrderHistory = () => {
             <div className='history'>
                 <h1 className='overviewHeading'><FaHistory />&nbsp;Order History</h1>
                 {
-                    <div className='userstable'>
+                    loading ? <div className="loader"></div> : <div className='userstable'>
 
                         {
                             data.length > 0 ?

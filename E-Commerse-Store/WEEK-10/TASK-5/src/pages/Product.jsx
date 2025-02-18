@@ -18,10 +18,10 @@ import { useCart } from '../components/CartProvider';
 const Product = () => {
     const id = useParams().id
     const data = useSelector((state) => state.productReducer.singleProduct)
-    const loading = useSelector((state) => state.productReducer.loading)
+    const loading2 = useSelector((state) => state.productReducer.loading)
     const dispatch = useDispatch()
     const [quantity, Setquantity] = useState(1)
-    const { BASE_URL, addToCart } = useCart()
+    const { loading, addToCart } = useCart()
     useEffect(() => {
         window.scrollTo(0, 0)
         dispatch(fetchSingleProduct(id))
@@ -41,7 +41,7 @@ const Product = () => {
             display: 'flex', flexDirection: 'column'
         }}>
             {
-                loading ? <div style={{ display: 'grid', placeContent: 'center', height: '100vh', }}>
+                loading2 ? <div style={{ display: 'grid', placeContent: 'center', height: '100vh', }}>
                     <div className="loader" style={{ background: 'hsl(204, 77%, 39%)' }}></div>
                 </div> : <>
                     <div className='productPage'>
@@ -69,10 +69,12 @@ const Product = () => {
                                 </div>
                             </div>
                             <div className='product-btns'>
-                                <button onClick={() => {
-                                    addToCart(data._id, quantity)
+                                <button onClick={async () => {
+                                    await addToCart(data._id, quantity)
                                     openCart()
-                                }}>ADD TO CART</button>
+                                }}>{
+                                        loading ? <div className="loader"></div> : 'ADD TO CART'
+                                    }</button>
                                 <button className='exp'>Buy with  <FaPaypal /></button>
                             </div>
                             <span style={{

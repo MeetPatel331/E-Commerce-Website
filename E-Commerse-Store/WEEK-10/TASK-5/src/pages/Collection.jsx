@@ -12,9 +12,9 @@ import { useCart } from '../components/CartProvider'
 const Collection = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const loading = useSelector((state) => state.productReducer.loading)
+  const loading2 = useSelector((state) => state.productReducer.loading)
   let data = useSelector((state) => state.productReducer.sliderImage)
-  const { addToCart ,BASE_URL} = useCart()
+  const { addToCart, loading } = useCart()
   useEffect(() => {
     window.scrollTo(0, 0)
     if (localStorage.getItem('admin')) {
@@ -29,7 +29,7 @@ const Collection = () => {
   return (
     <>
       {
-        !loading ? <>
+        !loading2 ? <>
           <div className='collection'>
             <div className='collection-bg' style={{ backgroundImage: `url(${img})` }}>
               <div className='content'>
@@ -51,10 +51,12 @@ const Collection = () => {
                       <h1>{String(item.title).slice(0, 35)}</h1>
                       <span>{`Colour : ${item.color}`}</span>
                       <p> {`$ ${fixingPrice(item.price)}`}</p>
-                      <button className='collection-btn' onClick={() => {
-                        addToCart(item._id, 1)
+                      <button className='collection-btn' onClick={async () => {
+                        await addToCart(item._id, 1)
                         openCart()
-                      }}>Add To cart</button>
+                      }}>{
+                          loading ? <div className="loader"></div> : 'Add To Cart'
+                        }</button>
                     </div>
                   )
                 })
