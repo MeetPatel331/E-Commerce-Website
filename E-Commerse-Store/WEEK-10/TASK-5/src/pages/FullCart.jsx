@@ -24,6 +24,7 @@ const FullCart = () => {
     const [text, SetText] = useState(false)
     const { cart, total, updateCartItem, removeFromCart } = useCart()
     const [quantity, setCartQuantity] = useState(0)
+    const [loadingIndex, SetLoadingIndex] = useState(null)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -80,7 +81,13 @@ const FullCart = () => {
                                 <div className='mainCart'>
                                     <div className='cart-items'>
                                         <div className='header2'>
-                                            <h2>Your Cart({quantity})</h2>
+                                            <h2 style={{display:'flex',gap:'10px'}}>Your Cart({quantity})
+                                                {
+                                                    loadingIndex ? <div className="loader" style={{
+                                                        background: 'black'
+                                                    }}></div> : ''
+                                                }
+                                            </h2>
                                             <h2 style={{ cursor: 'pointer' }} onClick={() => {
                                                 navigate('/products')
                                             }}>CONTINUE SHOPPING <FaAngleRight /> </h2>
@@ -106,12 +113,16 @@ const FullCart = () => {
                                                             <td>
                                                                 <div className='quantityOpt' style={{ marginLeft: '25%' }}>
                                                                     <p>
-                                                                        <button onClick={() => {
+                                                                        <button onClick={async () => {
                                                                             if (item.quantity > 1) {
-                                                                                updateCartItem(item._id, item.quantity - 1);
-                                                                            }
+                                                                                SetLoadingIndex(index)
+                                                                                await updateCartItem(item._id, item.quantity - 1);
+                                                                                SetLoadingIndex(null)
+                                                                            }       
                                                                             else if (item.quantity === 1) {
+                                                                                SetLoadingIndex(index)
                                                                                 removeFromCart(item._id);
+                                                                                SetLoadingIndex(null)
                                                                             }
                                                                         }}>
                                                                             <FaMinus />
@@ -125,8 +136,11 @@ const FullCart = () => {
                                                                         />
                                                                     </p>
                                                                     <p>
-                                                                        <button onClick={() =>
-                                                                            updateCartItem(item._id, item.quantity + 1)
+                                                                        <button onClick={async () => {
+                                                                            SetLoadingIndex(index)
+                                                                            await updateCartItem(item._id, item.quantity + 1);
+                                                                            SetLoadingIndex(null)
+                                                                        }
                                                                         }>
                                                                             <IoMdAdd />
                                                                         </button>
@@ -134,8 +148,10 @@ const FullCart = () => {
                                                                 </div>
                                                             </td>
                                                             <td>${(parseInt(item.price) * parseInt(item.quantity)).toFixed(2)}</td>
-                                                            <td style={{ cursor: 'pointer' }} onClick={() => {
-                                                                removeFromCart(item._id);
+                                                            <td style={{ cursor: 'pointer' }} onClick={async () => {
+                                                                SetLoadingIndex(index)
+                                                                await removeFromCart(item._id);
+                                                                SetLoadingIndex(null)
                                                             }}>{<MdDelete />}</td>
                                                         </tr>
                                                     })
