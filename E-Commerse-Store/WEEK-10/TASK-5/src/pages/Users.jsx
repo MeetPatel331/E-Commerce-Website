@@ -20,7 +20,7 @@ const Users = () => {
                 Authorization: `Bearer ${token}`
             }
         }).then((res) => {
-            SetLoading9false
+            SetLoading(false)
             SetData(res.data.filter((user) => user.role !== 'admin'))
         }).catch((err) => {
             SetLoading(false)

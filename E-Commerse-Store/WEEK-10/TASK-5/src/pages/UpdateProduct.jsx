@@ -8,7 +8,7 @@ import { useCart } from '../components/CartProvider'
 
 const UpdateProduct = (props) => {
     const id = props.id
-    console.log(id)
+    const [loading, SetLoading] = useState(false)
     const [data, setData] = useState({})
     const navigate = useNavigate()
     const handleChange = (e) => {
@@ -30,19 +30,21 @@ const UpdateProduct = (props) => {
     }, [])
     const handleSubmit = (e) => {
         e.preventDefault();
+        SetLoading(true)
         axios.patch(`${BASE_URL}/admin/updateproduct?id=${id}`, data, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }
         }).then((res) => {
-            console.log(res.data);
+            SetLoading(false)
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('Product Updated')
             setTimeout(() => {
                 navigate('/admin')
             }, 1000)
         }).catch((err) => {
+            SetLoading(false)
             if (err.response.data.unauthorized) {
                 const { success, accessToken } = refreshAccess()
                 if (success && accessToken) {
@@ -54,7 +56,6 @@ const UpdateProduct = (props) => {
             }
             toastErrorMessage(err.response.data.message)
             console.log(err);
-
         });
     }
 
@@ -81,9 +82,11 @@ const UpdateProduct = (props) => {
                     <input type="text" name='description' value={data.description} onChange={(e) => handleChange(e)} placeholder='Product description' />
                     <input type="text" name='image' value={data.image} onChange={(e) => handleChange(e)} placeholder='Product Image URL' />
                 </div>
-                <button onClick={(e) => handleSubmit(e)}>UPDATE</button>
+                <button onClick={(e) => handleSubmit(e)}>{
+                    loading ? <div className="loader"></div> : "UPDATE"
+                }</button>
                 <button className='backbtn' onClick={() => {
-                    window.history.back()
+                    navigate('/admin')
                 }}><FaArrowLeft />&nbsp;Back</button>
             </form>
         </div>

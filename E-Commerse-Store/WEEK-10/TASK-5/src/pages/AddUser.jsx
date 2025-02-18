@@ -4,22 +4,27 @@ import { toastErrorMessage, toastSuccessMessage } from '../components/RemovingDu
 import { FaArrowLeft, FaPlus } from 'react-icons/fa'
 import { refreshAccess } from '../components/Access'
 import { useCart } from '../components/CartProvider'
+import { useNavigate } from 'react-router-dom'
 
 const AddUser = () => {
     const [data, setData] = useState({})
-    const {BASE_URL}=useCart()
+    const navigate = useNavigate()
+    const [loading, SetLoading] = useState(false)
+    const { BASE_URL } = useCart()
     const handleChange = (e) => {
         setData({ ...data, [e.target.name]: e.target.value })
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/adduser`, data, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }
         }).then((res) => {
+            SetLoading(false)
             console.log(res.data);
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('User Added')
@@ -27,6 +32,7 @@ const AddUser = () => {
                 navigate('/admin')
             }, 1000)
         }).catch((err) => {
+            SetLoading(false)
             if (err.response.data.unauthorized) {
                 const { success, accessToken } = refreshAccess()
                 if (success && accessToken) {
@@ -55,9 +61,11 @@ const AddUser = () => {
                     <input type="passoword" name='password' value={data.password} onChange={(e) => handleChange(e)} placeholder='Create Password' />
                 </div>
 
-                <button onClick={(e) => handleSubmit(e)}>ADD</button>
+                <button onClick={(e) => handleSubmit(e)}>{
+                    loading ? <div className="loader"></div> : "ADD"
+                }</button>
                 <button className='backbtn' onClick={() => {
-                    window.history.back()
+                    navigate('/admin')
                 }}><FaArrowLeft />&nbsp;Back</button>
             </form>
         </div>

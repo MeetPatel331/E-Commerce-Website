@@ -109,10 +109,10 @@ const Navbar = () => {
 
   useEffect(() => {
     handleAdminLogin()
+  }, [admin])
+  useEffect(() => {
+    handleAdminLogin()
   }, [])
-
-
-
 
   return (
     <div style={{ position: "relative" }}>

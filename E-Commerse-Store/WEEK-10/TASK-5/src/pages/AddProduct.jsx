@@ -10,8 +10,9 @@ import { useCart } from '../components/CartProvider'
 
 const AddProduct = () => {
     const [data, setData] = useState({})
+    const [loading, SetLoading] = useState(false)
     const [categories, SetCategory] = useState([])
-    const {BASE_URL}=useCart()
+    const { BASE_URL } = useCart()
     const navigate = useNavigate()
     const [display, SetDisplay] = useState(false)
     const handleChange = (e) => {
@@ -31,15 +32,14 @@ const AddProduct = () => {
             }).catch((err) => {
                 if (err.response.data.unauthorized) {
                     const { success, accessToken } = refreshAccess()
-                    if(success && accessToken){
-                        localStorage.setItem('accessToken',accessToken)
+                    if (success && accessToken) {
+                        localStorage.setItem('accessToken', accessToken)
                     }
-                    else{
+                    else {
                         navigate('/login')
                     }
                 }
                 console.log(err)
-                // tion.href = '/login'
             })
         }
         fetchProducts()
@@ -47,7 +47,7 @@ const AddProduct = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/addProduct`, data, {
             headers: {
                 'Content-Type': 'application/json',
@@ -57,16 +57,18 @@ const AddProduct = () => {
             console.log(res.data);
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('Product Added')
+            SetLoading(false)
             setTimeout(() => {
-                 navigate('/login')
+                navigate('/admin')
             }, 1000)
         }).catch((err) => {
+            SetLoading(false)
             if (err.response.data.unauthorized) {
                 const { success, accessToken } = refreshAccess()
-                if(success && accessToken){
-                    localStorage.setItem('accessToken',accessToken)
+                if (success && accessToken) {
+                    localStorage.setItem('accessToken', accessToken)
                 }
-                else{
+                else {
                     navigate('/login')
                 }
             }
@@ -127,9 +129,11 @@ const AddProduct = () => {
                     <input type="text" name='description' value={data.description} onChange={(e) => handleChange(e)} placeholder='Product description' />
                     <input type="text" name='image' value={data.image} onChange={(e) => handleChange(e)} placeholder='Product Image URL' />
                 </div>
-                <button onClick={(e) => handleSubmit(e)}>ADD</button>
+                <button onClick={(e) => handleSubmit(e)}>{
+                    loading ? <div className="loader"></div> : 'ADD'
+                }</button>
                 <button className='backbtn' onClick={() => {
-                    window.history.back()
+                    navigate('/admin')
                 }}><FaArrowLeft />&nbsp;Back</button>
             </form>
         </div>
