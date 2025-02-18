@@ -13,8 +13,7 @@ import { SiAmericanexpress, SiShopify, SiTicktick } from "react-icons/si";
 import { TbTruckDelivery } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { closeNav } from "../components/Navbar";
-import { fetchFromLocalStorage, fixingPrice, removeItem, updateCart } from "../components/RemovingDuplicate";
-import axios from "axios";
+import { fixingPrice } from "../components/RemovingDuplicate";
 import { useCart } from "../components/CartProvider";
 import { toast } from "react-toastify";
 
@@ -22,7 +21,7 @@ import { toast } from "react-toastify";
 const Cart = () => {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
-  const { cart, total, BASE_URL, addToCart, updateCartItem, removeFromCart } = useCart()
+  const { cart, total, updateCartItem, removeFromCart } = useCart()
   const [loadingIndex, SetLoadingIndex] = useState(null)
   const checkout = () => {
     if (localStorage.getItem('userId')) {

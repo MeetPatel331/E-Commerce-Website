@@ -10,7 +10,7 @@ import { addCart } from '../Redux/Reducers'
 import { FaStar } from 'react-icons/fa'
 import { openCart } from '../components/Navbar'
 import ImageGallery from 'react-image-gallery'
-import { addToCart, fixingPrice } from '../components/RemovingDuplicate'
+import {  fixingPrice } from '../components/RemovingDuplicate'
 import { useCart } from '../components/CartProvider'
 import { useNavigate } from 'react-router-dom'
 
