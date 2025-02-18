@@ -15,7 +15,7 @@ const AdminPanel = () => {
     const [isAdmin, SetisAdmin] = useState(false)
     const [categories, SetCategory] = useState([])
     const [category, SetcurrCategory] = useState('')
-    const { BASE_URL } = useCart()
+    const { BASE_URL,handleAdminLogin } = useCart()
     const [tab, SetTab] = useState({
         users: false, products: false, overview: true, orders: false
     })
@@ -30,8 +30,7 @@ const AdminPanel = () => {
             let set = new Set(res.data.categories)
             SetCategory(Array.from(set))
         }).catch((err) => {
-            console.log(err)
-            // window.location.href = '/login'
+            console.log(err) 
         })
     }
     useEffect(() => {
@@ -89,6 +88,7 @@ const AdminPanel = () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('admin')
+        handleAdminLogin()
         navigate('/')
     }
     return (

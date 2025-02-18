@@ -13,6 +13,7 @@ const Collection = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const loading2 = useSelector((state) => state.productReducer.loading)
+  const [loadingIndex, SetLoadingIndex] = useState(null)
   let data = useSelector((state) => state.productReducer.sliderImage)
   const { addToCart, loading } = useCart()
   useEffect(() => {
@@ -52,10 +53,12 @@ const Collection = () => {
                       <span>{`Colour : ${item.color}`}</span>
                       <p> {`$ ${fixingPrice(item.price)}`}</p>
                       <button className='collection-btn' onClick={async () => {
+                        SetLoadingIndex(index)
                         await addToCart(item._id, 1)
+                        SetLoadingIndex(null)
                         openCart()
                       }}>{
-                          loading ? <div className="loader"></div> : 'Add To Cart'
+                          index === loadingIndex ? <div className="loader"></div> : 'Add To Cart'
                         }</button>
                     </div>
                   )

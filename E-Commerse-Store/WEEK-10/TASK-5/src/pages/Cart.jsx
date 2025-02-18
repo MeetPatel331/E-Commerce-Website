@@ -22,8 +22,8 @@ import { toast } from "react-toastify";
 const Cart = () => {
   const navigate = useNavigate();
   const [cartData, setCartData] = useState([]);
-  const { cart, total,BASE_URL, addToCart, updateCartItem, removeFromCart } = useCart()
-
+  const { cart, total, BASE_URL, addToCart, updateCartItem, removeFromCart } = useCart()
+  const [loadingIndex, SetLoadingIndex] = useState(null)
   const checkout = () => {
     if (localStorage.getItem('userId')) {
       navigate('/checkout')
@@ -83,33 +83,17 @@ const Cart = () => {
                       Color : {item.color}
                       <br /> $ {fixingPrice(item.price)}
                     </p>
-                    {/* <div className="quantityOpt">
-                      <button
-                        onClick={() => {
-                          if (item.quantity > 1) {
-                            updateCartItem(item._id, item.quantity - 1);
-                          } else {
-                            removeFromCart(item._id);
-                          }
-                        }}
-                      >
-                        <FaMinus />
-                      </button>
-                      <input type="text" value={item.quantity} readOnly />
-                      <button
-                        onClick={() => updateCartItem(item._id, item.quantity + 1)}
-                      >
-                        <IoMdAdd />
-                      </button>
-                    </div> */}
                     <div className="quantityOpt">
                       <p>
                         <button
-                          onClick={() => {
+                          onClick={async () => {
+                            SetLoadingIndex(index)
                             if (item.quantity > 1) {
-                              updateCartItem(item._id, item.quantity - 1);
+                              await updateCartItem(item._id, item.quantity - 1);
+                              SetLoadingIndex(null)
                             } else {
-                              removeFromCart(item._id);
+                              await removeFromCart(item._id);
+                              SetLoadingIndex(null)
                             }
                           }}
                         >
@@ -124,16 +108,29 @@ const Cart = () => {
                       </p>
                       <p>
                         <button
-                          onClick={() => updateCartItem(item._id, item.quantity + 1)}
+                          onClick={async() => {
+                            SetLoadingIndex(index)
+                            await updateCartItem(item._id, item.quantity + 1)
+                            SetLoadingIndex(null)
+                          }}
                         >
                           <IoMdAdd />
                         </button>
                       </p>
                     </div>
+                    {
+                      index === loadingIndex ? <div className="loader" style={{
+                        background: 'rgb(1,1,78)'
+                      }}></div> : ''
+                    }
                   </div>
                   <div className="actions">
                     <button
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={async() => {
+                        SetLoadingIndex(index)
+                        await removeFromCart(item._id)
+                        SetLoadingIndex(null)
+                      }}
                     >
                       <MdDeleteOutline />
                     </button>
