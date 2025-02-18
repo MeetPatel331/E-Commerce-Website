@@ -14,7 +14,7 @@ const UpdateProduct = (props) => {
     const handleChange = (e) => {
         setData({ ...data, [e.target.name]: e.target.value })
     }
-    const {BASE_URL}=useCart()
+    const { BASE_URL } = useCart()
     useEffect(() => {
         axios.post(`${BASE_URL}/admin/product/singleproduct?id=${id}`, {}, {
             headers: {
@@ -40,7 +40,7 @@ const UpdateProduct = (props) => {
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('Product Updated')
             setTimeout(() => {
-                window.location.href = '/admin'
+                navigate('/admin')
             }, 1000)
         }).catch((err) => {
             if (err.response.data.unauthorized) {
@@ -54,7 +54,7 @@ const UpdateProduct = (props) => {
             }
             toastErrorMessage(err.response.data.message)
             console.log(err);
-           
+
         });
     }
 

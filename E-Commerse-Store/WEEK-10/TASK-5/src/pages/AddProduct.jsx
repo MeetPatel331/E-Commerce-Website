@@ -39,7 +39,7 @@ const AddProduct = () => {
                     }
                 }
                 console.log(err)
-                // window.location.href = '/login'
+                // tion.href = '/login'
             })
         }
         fetchProducts()
@@ -58,7 +58,7 @@ const AddProduct = () => {
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('Product Added')
             setTimeout(() => {
-                 window.location.href='/admin'
+                 navigate('/login')
             }, 1000)
         }).catch((err) => {
             if (err.response.data.unauthorized) {

@@ -24,7 +24,7 @@ const AddUser = () => {
             localStorage.setItem('updateStatus', 'true');
             toastSuccessMessage('User Added')
             setTimeout(() => {
-                window.location.href = '/admin'
+                navigate('/admin')
             }, 1000)
         }).catch((err) => {
             if (err.response.data.unauthorized) {

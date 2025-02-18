@@ -89,7 +89,7 @@ const AdminPanel = () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
         localStorage.removeItem('admin')
-        window.location.href = '/'
+        navigate('/')
     }
     return (
         <div className='admin'>

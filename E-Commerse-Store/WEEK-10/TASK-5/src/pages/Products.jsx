@@ -12,22 +12,26 @@ import { useCart } from '../components/CartProvider'
 
 const Products = (props) => {
     const [data, setData] = useState([])
-    const {BASE_URL}=useCart()
+    const { BASE_URL } = useCart()
+    const [loading, SetLoading] = useState(false)
     const [search, Setsearch] = useState('')
     const [update, IsUpdate] = useState({
         showForm: false, id: '', showAddForm: false
     })
     const adminAccess = localStorage.getItem('accessToken')
     const fetchProducts = () => {
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/product/category?category=${props.category}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${adminAccess}`
             }
         }).then((res) => {
+            SetLoading(false)
             console.log(res.data)
             setData(res.data)
         }).catch((err) => {
+            SetLoading(false)
             console.log(err)
             if (err.response.data.unauthorized) {
                 const { success, accessToken } = refreshAccess()
@@ -38,7 +42,6 @@ const Products = (props) => {
                     navigate('/login')
                 }
             }
-            // window.location.href = '/login'
         })
         console.log(props.category)
     }
@@ -48,17 +51,20 @@ const Products = (props) => {
 
     const handleDelete = (id) => {
         if (confirm('Delete Product ? ')) {
+            SetLoading(true)
             axios.delete(`${BASE_URL}/admin/deleteProduct?id=${id}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${adminAccess}`
                 }
             }).then((res) => {
+                SetLoading(false)
                 fetchProducts()
                 toast.success('Product Deleted', {
                     position: 'top-right'
                 })
             }).catch((err) => {
+                SetLoading(false)
                 console.log(err)
                 if (err.response.data.unauthorized) {
                     const { success, accessToken } = refreshAccess()
@@ -75,14 +81,17 @@ const Products = (props) => {
 
     const handleSearch = (e) => {
         e.preventDefault()
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/product/search?searchfor=products&search=${e.target.value}&category=${props.category}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${adminAccess}`
             }
         }).then((res) => {
+            SetLoading(false)
             setData(res.data.products)
         }).catch((err) => {
+            SetLoading(false)
             if (err.response.data.unauthorized) {
                 const { success, accessToken } = refreshAccess()
                 if (success && accessToken) {
@@ -103,7 +112,7 @@ const Products = (props) => {
         <>
             <h1 className='overviewHeading'>Products</h1>
             {
-                update.showForm ? <UpdateProduct id={update.id} /> :
+                !loading ? update.showForm ? <UpdateProduct id={update.id} /> :
                     update.showAddForm ? <AddProduct />
                         : <div className='userstable'>
                             <div className='btns'>
@@ -146,7 +155,7 @@ const Products = (props) => {
                                                             <div className='editDelete'>
                                                                 <button onClick={() => {
                                                                     IsUpdate({ ...update, id: user._id, showForm: true })
-                                                                }}><FaEdit/></button>
+                                                                }}><FaEdit /></button>
                                                                 <button onClick={() => handleDelete(user._id)}><MdDelete /></button>
                                                             </div>
                                                         </td>
@@ -159,7 +168,9 @@ const Products = (props) => {
                                     <h1>No Data available</h1>
                                 </div>
                             }
-                        </div>
+                        </div> : <div style={{ height: '70vh', display: 'grid', placeContent: 'center' }}>
+                    <div className="loader"></div>
+                </div>
             }
         </>
     )

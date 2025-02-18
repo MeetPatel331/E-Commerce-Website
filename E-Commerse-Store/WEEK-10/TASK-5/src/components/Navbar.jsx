@@ -73,7 +73,7 @@ const Navbar = () => {
         if (res.data.success) {
           if (localStorage.getItem('admin')) {
             console.log('hy')
-            window.location.href = '/admin'
+            navigate('/admin')
           }
           else {
             navigate(`/profile/${res.data.id}`)
@@ -90,14 +90,14 @@ const Navbar = () => {
           if (res.data.success) {
             localStorage.setItem('accessToken', res.data.accessToken)
             if (localStorage.getItem('admin')) {
-              window.location.href = '/admin'
+              navigate('/admin')
             }
             else {
               navigate(`/profile/${res.data.id}`)
             }
           }
         }).catch((err) => {
-          window.location.href = '/login'
+          navigate('/login')
         })
       }).catch((err) => {
         console.log(err)

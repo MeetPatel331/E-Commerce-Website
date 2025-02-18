@@ -5,42 +5,49 @@ import AddUser from './AddUser'
 import { MdEmail } from 'react-icons/md'
 import { useCart } from '../components/CartProvider'
 const Users = () => {
-    const {BASE_URL}=useCart()
+    const { BASE_URL } = useCart()
     const [data, SetData] = useState([])
+    const [loading, SetLoading] = useState(false)
     const [update, IsUpdate] = useState({
         showAddForm: false
     })
     const token = localStorage.getItem('accessToken')
     useEffect(() => {
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/users`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
             }
         }).then((res) => {
-            SetData(res.data.filter((user)=>user.role!=='admin'))
+            SetLoading9false
+            SetData(res.data.filter((user) => user.role !== 'admin'))
         }).catch((err) => {
+            SetLoading(false)
             console.log(err)
         })
     }, [])
     const handleSearch = (e) => {
         e.preventDefault()
+        SetLoading(true)
         axios.post(`${BASE_URL}/admin/product/search?searchfor=users&search=${e.target.value}`, {}, {
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
             }
         }).then((res) => {
+            SetLoading(false)
             SetData(res.data.users)
         }).catch((err) => {
+            SetLoading(false)
             console.log(err)
         })
     }
     return (
         <>
-            <h1 className='overviewHeading'><FaUsers/>&nbsp;Users</h1>
+            <h1 className='overviewHeading'><FaUsers />&nbsp;Users</h1>
             {
-                update.showAddForm ? <AddUser /> : <div className='userstable'>
+                !loading ? update.showAddForm ? <AddUser /> : <div className='userstable'>
                     <div className='btns'>
                         <button onClick={() => {
                             IsUpdate({ ...update, showAddForm: true })
@@ -54,7 +61,7 @@ const Users = () => {
                                     <tr>
                                         <th>FirstName</th>
                                         <th>LastName</th>
-                                        <th><MdEmail/>&nbsp;Email</th>
+                                        <th><MdEmail />&nbsp;Email</th>
                                         <th>FullName</th>
                                     </tr>
                                 </thead>
@@ -76,6 +83,8 @@ const Users = () => {
                                 <h1>No Users exists</h1>
                             </div>
                     }
+                </div> : <div style={{ height: '70vh', display: 'grid', placeContent: 'center' }}>
+                    <div className="loader"></div>
                 </div>
             }
         </>

@@ -7,7 +7,8 @@ import { useCart } from '../components/CartProvider'
 const Orders = () => {
     const [data, SetData] = useState([])
     const token = localStorage.getItem('accessToken')
-    const {BASE_URL}=useCart()
+    const { BASE_URL } = useCart()
+    const [loading, SetLoading] = useState(false)
     const sortUp = () => {
         let info = []
         info = data.sort((a, b) => a.total - b.total)
@@ -20,6 +21,7 @@ const Orders = () => {
         SetData(info)
     }
     useEffect(() => {
+        SetLoading(true)
         axios.post(`${BASE_URL}/order/getorders`, {}, {
             headers: {
                 'Content-Type': 'application/json',
@@ -27,22 +29,24 @@ const Orders = () => {
             }
         }).then((res) => {
             SetData(res.data.orders)
+            SetLoading(false)
         }).catch((err) => {
+            SetLoading(false)
             console.log(err)
         })
     }, [])
 
     return (
         <>
-            <h1 className='overviewHeading'><FaCartArrowDown/>&nbsp;    Orders</h1>
-            {
+            <h1 className='overviewHeading'><FaCartArrowDown />&nbsp;    Orders</h1>
+            {!loading ?
                 <div className='userstable'>
                     {
                         data.length > 0 ?
                             data && <table>
                                 <thead>
                                     <tr>
-                                        <th><MdEmail/>&nbsp;Email</th>
+                                        <th><MdEmail />&nbsp;Email</th>
                                         <th>Order</th>
                                         <th>Quantity</th>
                                         <th><IoMdTime />&nbsp;Order Time</th>
@@ -80,6 +84,8 @@ const Orders = () => {
                                 <h1>No Orders</h1>
                             </div>
                     }
+                </div> : <div style={{ height: '70vh', display: 'grid', placeContent: 'center' }}>
+                    <div className="loader"></div>
                 </div>
             }
         </>
