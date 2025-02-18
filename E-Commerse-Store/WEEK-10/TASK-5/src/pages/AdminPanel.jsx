@@ -15,7 +15,8 @@ const AdminPanel = () => {
     const [isAdmin, SetisAdmin] = useState(false)
     const [categories, SetCategory] = useState([])
     const [category, SetcurrCategory] = useState('')
-    const { BASE_URL,handleAdminLogin } = useCart()
+    const { BASE_URL, handleAdminLogin } = useCart()
+    const updayeStatus = localStorage.getItem('updateStatus')
     const [tab, SetTab] = useState({
         users: false, products: false, overview: true, orders: false
     })
@@ -30,7 +31,7 @@ const AdminPanel = () => {
             let set = new Set(res.data.categories)
             SetCategory(Array.from(set))
         }).catch((err) => {
-            console.log(err) 
+            console.log(err)
         })
     }
     useEffect(() => {
@@ -91,6 +92,11 @@ const AdminPanel = () => {
         handleAdminLogin()
         navigate('/')
     }
+    useEffect(() => {
+        if (updayeStatus) {
+            SetTab({ ...tab, products: true, users: false, overview: true, orders: false })
+        }
+    },[updayeStatus])
     return (
         <div className='admin'>
             {
@@ -102,13 +108,13 @@ const AdminPanel = () => {
                                 <h5>Hello admin@123!</h5>
                             </div>
                             <br />
-                            <button className={tab.overview ? 'active' : ''} onClick={() => SetTab({ ...tab, users: false, products: false, overview: true })}><FaCircleDot />&nbsp;Overview</button>
-                            <button className={tab.users ? 'active' : ''} onClick={() => SetTab({ ...tab, users: true, products: false, overview: false })}><FaUsers />&nbsp;Users</button>
+                            <button className={tab.overview ? 'active' : ''} onClick={() => SetTab({ ...tab, users: false, products: false, overview: true, orders: false })}><FaCircleDot />&nbsp;Overview</button>
+                            <button className={tab.users ? 'active' : ''} onClick={() => SetTab({ ...tab, users: true, products: false, overview: false, orders: false })}><FaUsers />&nbsp;Users</button>
                             {/* <button className={tab.products ? 'active' : ''} onClick={() => SetTab({ ...tab, products: true, users: false, overview: false   })}><FaDatabase />&nbsp;Products</button> */}
                             <select name="" id="" onChange={(e) => {
                                 SetcurrCategory(e.target.value);
                                 categorytoShow = e.target.value;
-                                SetTab({ ...tab, products: true, users: false, overview: false })
+                                SetTab({ ...tab, products: true, users: false, overview: false, orders: false })
                             }}>
                                 <option value="" selected disabled hidden>Products</option>
                                 <option value="all">All Products</option>
