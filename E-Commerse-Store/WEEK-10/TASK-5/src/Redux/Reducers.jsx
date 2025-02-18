@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { toastSuccessMessage } from "../components/RemovingDuplicate";
-const BASE_URL = "http://localhost:3000"
+import { BASE_URL } from "../Config";
 
 export const fetchProducts = createAsyncThunk('fetch/allProducst', () => {
     return fetch(`${BASE_URL}/fetch/products`).then((res) => res.json()).then((data) => data)

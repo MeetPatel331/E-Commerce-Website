@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
+import { BASE_URL } from "../Config";
 
 export const CartContext = createContext();
 
@@ -7,7 +8,6 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [total, SetTotal] = useState(0)
   const userId = localStorage.getItem("userId");
-  const BASE_URL = "http://localhost:3000"
 
   const countTotalPrice = (cart) => {
     let s = 0;

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-const BASE_URL = "http://localhost:3000"
+import { BASE_URL } from "../Config";
 export const fetchCartFromDB = createAsyncThunk(
     'cart/fetchFromDB',
     () => {
