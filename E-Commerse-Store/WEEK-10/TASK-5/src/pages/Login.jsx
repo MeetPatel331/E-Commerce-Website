@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux'
 const Login = () => {
     const navigate = useNavigate()
     const [loading, SetLoading] = useState(false)
-    const { loginCart, BASE_URL } = useCart()
+    const { loginCart, BASE_URL,handleAdminLogin } = useCart()
     const [data, setData] = useState({
         email: '', password: ''
     })
@@ -29,7 +29,6 @@ const Login = () => {
         e.preventDefault()
         SetLoading(true)
         axios.post(`${BASE_URL}/auth/login`, data).then((res) => {
-            console.log(res.data.role)
             if (res.data.role === 'admin') {
                 localStorage.setItem('accessToken', res.data.accessToken)
                 localStorage.setItem('refreshToken', res.data.refreshToekn)
@@ -37,6 +36,7 @@ const Login = () => {
                 toast.success('SuccessFully Login ! ', {
                     position: 'top-right'
                 })
+                handleAdminLogin()
                 navigate('/admin')
                 SetLoading(false)
             }
@@ -48,6 +48,7 @@ const Login = () => {
                     position: 'top-right'
                 })
                 loginCart()
+                handleAdminLogin()
                 navigate('/')
                 SetLoading(false)
             }

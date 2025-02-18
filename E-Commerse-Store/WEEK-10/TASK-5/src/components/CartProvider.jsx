@@ -7,6 +7,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
   const [total, SetTotal] = useState(0)
   const [loading, SetLoading] = useState(false)
+  const [admin, SetisAdmin] = useState(false)
   const userId = localStorage.getItem("userId");
 
   const countTotalPrice = (cart) => {
@@ -137,6 +138,15 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const handleAdminLogin = () => {
+    if (localStorage.getItem('admin')) {
+      SetisAdmin(true)
+    }
+    else {
+      SetisAdmin(false)
+    }
+  }
+
   const loginCart = async () => {
     SetLoading(true)
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -197,7 +207,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, loading, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
+    <CartContext.Provider value={{ cart, handleAdminLogin, admin, loading, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

@@ -11,7 +11,7 @@ import { useCart } from '../components/CartProvider'
 const Signup = () => {
     const dispatch = useDispatch()
     const [loading, SetLoading] = useState(false)
-    const { loginCart, BASE_URL } = useCart()
+    const { loginCart, BASE_URL,handleAdminLogin } = useCart()
     useEffect(() => {
         const token = localStorage.getItem('accessToken')
         const refreshToken = localStorage.getItem('refreshToken')
@@ -48,6 +48,7 @@ const Signup = () => {
                 toast.success('Successfully Signup', {
                     position: 'top-right'
                 })
+                handleAdminLogin()
                 SetLoading(false)
                 loginCart()
                 navigate('/')

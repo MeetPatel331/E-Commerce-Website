@@ -84,7 +84,9 @@ const Users = () => {
                             </div>
                     }
                 </div> : <div style={{ height: '70vh', display: 'grid', placeContent: 'center' }}>
-                    <div className="loader"></div>
+                    <div className="loader" style={{
+                        background:'rgb(1, 1, 78)'
+                    }}></div>
                 </div>
             }
         </>

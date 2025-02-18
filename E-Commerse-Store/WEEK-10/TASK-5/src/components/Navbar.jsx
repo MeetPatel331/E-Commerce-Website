@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FaBars, FaSearch, FaShoppingCart, FaUser } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
-import { useSelector } from "react-redux";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import logo from "../images/horizontal.avif";
 import Cart from "../pages/Cart";
-import { quantityCount } from "./RemovingDuplicate";
 import axios from "axios";
 import { useCart } from "./CartProvider";
 
@@ -31,8 +29,8 @@ const Navbar = () => {
   const [isNavbarVisible, setIsNavbarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [quantity, setCartQuantity] = useState(0)
-  const { cart, BASE_URL } = useCart()
-  const [admin, SetisAdmin] = useState(false)
+  const { cart, BASE_URL, handleAdminLogin, admin } = useCart()
+  // const [admin, SetisAdmin] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,8 +69,8 @@ const Navbar = () => {
         }
       }).then((res) => {
         if (res.data.success) {
-          if (localStorage.getItem('admin')) {
-            console.log('hy')
+          handleAdminLogin()
+          if (admin) {
             navigate('/admin')
           }
           else {
@@ -110,9 +108,7 @@ const Navbar = () => {
   }
 
   useEffect(() => {
-    if (localStorage.getItem('admin')) {
-      SetisAdmin(true)
-    }
+    handleAdminLogin()
   }, [])
 
 
