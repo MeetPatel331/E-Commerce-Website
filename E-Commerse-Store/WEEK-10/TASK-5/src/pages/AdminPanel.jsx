@@ -126,8 +126,8 @@ const AdminPanel = () => {
                                     })
                                 }
                             </select>
-                            <button onClick={logout}>Logout&nbsp;&nbsp;<FaArrowRight /></button>
                             <button className={tab.orders ? 'active' : ''} onClick={() => SetTab({ ...tab, users: false, products: false, overview: false, orders: true })}>Orders</button>
+                            <button onClick={logout}>Logout&nbsp;&nbsp;<FaArrowRight /></button>
                         </div>
                         <div className="panelContent">
                             {

@@ -1988,7 +1988,7 @@ select {
     transition: all 0.3s ease-in-out;
     width: 100%;
 
-    .errorMsg{
+    .errorMsg {
       font-weight: bold;
       color: red;
       background-color: rgba($color: rgb(231, 105, 105), $alpha: 0.5);
@@ -1999,7 +1999,8 @@ select {
       width: 50%;
       justify-content: space-between;
       display: flex;
-      button{
+
+      button {
         background-color: transparent;
         border: none;
         color: red;
@@ -2056,7 +2057,8 @@ select {
       }
     }
   }
-  .form-container:first-child{
+
+  .form-container:first-child {
     background-color: transparent;
     border: none;
   }
@@ -2079,4 +2081,28 @@ select {
 
 .form-container::-webkit-scrollbar {
   display: none;
+}
+
+.skeleton {
+  margin-inline: 5%;
+  display: flex;
+  gap: 2%;
+  width: 100%;
+
+  .s1 {
+    animation: skeleton-loading 1s linear infinite alternate;
+    height: 500px;
+    width: 100%;
+    border-radius: 10px;
+  }
+
+  @keyframes skeleton-loading {
+    0% {
+      background-color: hsl(200, 13%, 91%);
+    }
+
+    100% {
+      background-color: hsl(180, 1%, 85%);
+    }
+  }
 }
