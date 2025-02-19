@@ -45,7 +45,7 @@ const sendMail = (data) => {
         from: process.env.MAIL_USER,
         to: data.email,
         subject: data.subject,
-        text: text,
+        html: text,
     }
     mailTransport.sendMail(mailOptions, (err, info) => {
         if (err) {
