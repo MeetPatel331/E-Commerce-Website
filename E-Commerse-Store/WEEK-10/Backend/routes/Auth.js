@@ -6,10 +6,33 @@ require('dotenv').config()
 const bcrypt = require('bcrypt')
 const Admin = require('../models/admin')
 const authCheck = require('../authController/AuthCheck')
-const sendMail = require('../authController/AuthCheck')
-
 const accessTokenTime = 60 * 60 * 1000
 const refreshTokenTime = 24 * 60 * 60 * 1000 * 3
+
+const sendMail = (data) => {
+    const mailTransport = nodemailer.createTransport({
+        service: 'Gmail',
+        host: 'smtp.gmail.com',
+        auth: {
+            user: process.env.MAIL_USER,
+            pass: process.env.MAIL_PASSWORD
+        }
+    })
+    const mailOptions = {
+        from: process.env.MAIL_USER,
+        to: data.email,
+        subject: data.subject,
+        text: data.text
+    }
+    mailTransport.sendMail(mailOptions, (err, info) => {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            console.log(info.response)
+        }
+    })
+}
 
 route.post('/signup', async (req, res) => {
     const { firstname, lastname, email, password } = req.body
