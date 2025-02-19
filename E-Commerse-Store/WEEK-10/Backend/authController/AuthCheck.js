@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-const nodemailer = require('nodemailer')
 
 const authCheck = (req, res, next) => {
     const token = String(req.headers['authorization']).split(' ')[1]

@@ -6,6 +6,7 @@ require('dotenv').config()
 const bcrypt = require('bcrypt')
 const Admin = require('../models/admin')
 const authCheck = require('../authController/AuthCheck')
+const nodemailer = require('nodemailer')
 const accessTokenTime = 60 * 60 * 1000
 const refreshTokenTime = 24 * 60 * 60 * 1000 * 3
 
