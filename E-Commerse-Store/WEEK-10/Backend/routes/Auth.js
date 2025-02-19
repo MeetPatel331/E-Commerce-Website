@@ -20,7 +20,7 @@ route.post('/signup', async (req, res) => {
         return res.status(400).json({ message: 'User with this Email already exists', success: false })
     }
     else {
-        const user = new User({ email, firstname, lastname, password: await bcrypt.hash(password, 10),role:"user" })
+        const user = new User({ email, firstname, lastname, password: await bcrypt.hash(password, 10), role: "user" })
         await user.save()
         const accessToken = jwt.sign(
             { id: user._id }, process.env.JWT_ACCESS_SECRET, {
@@ -35,6 +35,9 @@ route.post('/signup', async (req, res) => {
         if (!accessToken || !refreshToken) {
             return res.status(400).json({ message: 'Something went wrong try again !!', success: false })
         }
+        let text = `Hello ${firstname} ${lastname},
+        Thank you for signing up ! We’re thrilled to have you on board.`
+        authCheck.sendMail({ email, subject: `Welcome to South Texas Slings - Let's Get Started!`, text })
         res.status(200).json({ message: 'Successfully Registered', success: true, accessToken, refreshToken, id: user._id })
     }
 })
@@ -56,7 +59,7 @@ route.post('/login', async (req, res) => {
         if (result) {
             const accessToken = jwt.sign({ id: user._id }, process.env.JWT_ACCESS_SECRET, { expiresIn: accessTokenTime })
             const refreshToekn = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: refreshTokenTime })
-            if(user.role==='admin'){
+            if (user.role === 'admin') {
                 return res.status(200).json({ message: 'Successfully Logged in', success: true, accessToken, refreshToekn, id: user._id, role: user.role })
             }
             res.status(200).json({ message: 'Successfully Logged in', success: true, accessToken, refreshToekn, id: user._id, role: user.role })
