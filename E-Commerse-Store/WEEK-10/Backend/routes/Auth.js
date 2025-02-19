@@ -6,6 +6,7 @@ require('dotenv').config()
 const bcrypt = require('bcrypt')
 const Admin = require('../models/admin')
 const authCheck = require('../authController/AuthCheck')
+const sendMail = require('../authController/AuthCheck')
 
 const accessTokenTime = 60 * 60 * 1000
 const refreshTokenTime = 24 * 60 * 60 * 1000 * 3
@@ -37,7 +38,7 @@ route.post('/signup', async (req, res) => {
         }
         let text = `Hello ${firstname} ${lastname},
         Thank you for signing up ! We’re thrilled to have you on board.`
-        authCheck.sendMail({ email, subject: `Welcome to South Texas Slings - Let's Get Started!`, text })
+        sendMail({ email, subject: `Welcome to South Texas Slings - Let's Get Started!`, text })
         res.status(200).json({ message: 'Successfully Registered', success: true, accessToken, refreshToken, id: user._id })
     }
 })

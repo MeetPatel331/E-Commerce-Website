@@ -44,3 +44,4 @@ export const sendMail = (data) => {
 }
 
 module.exports = authCheck
+module.exports = sendMail
