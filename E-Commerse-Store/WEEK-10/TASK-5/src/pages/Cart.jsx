@@ -31,6 +31,7 @@ const Cart = () => {
       toast.warning('Login to checkout', {
         position: 'top-right'
       })
+      closeNav()
       navigate('/login')
     }
   }
@@ -107,7 +108,7 @@ const Cart = () => {
                       </p>
                       <p>
                         <button
-                          onClick={async() => {
+                          onClick={async () => {
                             SetLoadingIndex(index)
                             await updateCartItem(item._id, item.quantity + 1)
                             SetLoadingIndex(null)
@@ -125,7 +126,7 @@ const Cart = () => {
                   </div>
                   <div className="actions">
                     <button
-                      onClick={async() => {
+                      onClick={async () => {
                         SetLoadingIndex(index)
                         await removeFromCart(item._id)
                         SetLoadingIndex(null)

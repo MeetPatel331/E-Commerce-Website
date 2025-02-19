@@ -9,12 +9,13 @@ import { useDispatch } from 'react-redux'
 const Login = () => {
     const navigate = useNavigate()
     const [loading, SetLoading] = useState(false)
-    const { loginCart, BASE_URL,handleAdminLogin } = useCart()
+    const { loginCart, BASE_URL, handleAdminLogin } = useCart()
     const [data, setData] = useState({
         email: '', password: ''
     })
     const [error, setError] = useState('')
     useEffect(() => {
+        window.scrollTo(0, 0)
         const token = localStorage.getItem('accessToken')
         const refreshToken = localStorage.getItem('refreshToken')
         if (token && refreshToken) {
