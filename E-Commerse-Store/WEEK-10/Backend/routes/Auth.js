@@ -21,7 +21,7 @@ const sendMail = (data) => {
         }
     })
     if (data.about === 'Signup') {
-        text = ` <div style="font-family: Arial, sans-serif; color: #333;">
+        text = ` <div style="font-family: Arial, sans-serif; color: #333;margin-inline:"5%";background:"#ccc";display:"block";">
         <h1 style="color: #007bff;text-align:"center">SOUTH TEXAS SLIGNS</h1>
           <h2 style="color: #007bff;">Welcome, ${data.username}!</h2>
           <img src="https://img.freepik.com/free-vector/man-with-hand-up-icon_24877-81630.jpg?ga=GA1.1.841956205.1736584141&semt=ais_hybrid" width="100" height="200"/>
@@ -32,17 +32,17 @@ const sendMail = (data) => {
         </div>`
     }
     else if (data.about == 'Login') {
-        text = ` <div style="font-family: Arial, sans-serif; color: #333;">
+        text = ` <div style="font-family: Arial, sans-serif; color: #333;margin-inline:"5%";background:"#ccc";display:"block";">
         <h1 style="color: #007bff;text-align:"center">SOUTH TEXAS SLIGNS</h1>
           <h2 style="color: #007bff;">Welcome Back !!</h2>
-          <img src="https://img.freepik.com/free-vector/man-with-hand-up-icon_24877-81630.jpg?ga=GA1.1.841956205.1736584141&semt=ais_hybrid" width="100" height="200"/>
+          <img src="https://img.freepik.com/free-vector/man-with-hand-up-icon_24877-81630.jpg?ga=GA1.1.841956205.1736584141&semt=ais_hybrid" style="width:100%" height="200"/>
           <p>Explore amazing Products.</p>
           <p>Best regards,<br>South Texas Slings</p>
         </div>`
     }
 
     const mailOptions = {
-        from: process.env.MAIL_USER,
+        from: "SOUTH TEXAS SLINGS",
         to: data.email,
         subject: data.subject,
         html: text,
