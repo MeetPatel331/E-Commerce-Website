@@ -9,6 +9,9 @@ export const CartProvider = ({ children }) => {
   const [loading, SetLoading] = useState(false)
   const [admin, SetisAdmin] = useState(false)
   const userId = localStorage.getItem("userId");
+  const [user, setuser] = useState({
+    name: '', email: ''
+  })
 
   const countTotalPrice = (cart) => {
     let s = 0;
@@ -22,6 +25,13 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     const fetch = async () => {
       if (userId) {
+        const res = await axios.post(`${BASE_URL}/auth/profile?id=${userId}`, {}, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        })
+        setuser({ ...user, name: `${res.data.user.firstname} ${res.data.user.lastname}`, email: res.data.user.email })
         fetchCartFromDB();
       } else {
         SetLoading(true)
@@ -106,7 +116,7 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Update Cart Item
+
   const updateCartItem = async (productId, quantity) => {
     if (userId) {
       SetLoading(true)
@@ -191,7 +201,6 @@ export const CartProvider = ({ children }) => {
       SetLoading(true)
       const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
       const updatedCart = savedCart.filter((item) => item.productId !== productId);
-
       localStorage.setItem("cart", JSON.stringify(updatedCart));
       const fullData = await Promise.all(
         updatedCart.map(async ({ productId, quantity }) => {
@@ -207,7 +216,7 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, handleAdminLogin, admin, loading, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
+    <CartContext.Provider value={{ cart, handleAdminLogin, user, admin, loading, BASE_URL, loginCart, logout, total, addToCart, updateCartItem, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

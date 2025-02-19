@@ -12,6 +12,7 @@ import Confirm from '../Animations/Pay.json'
 import { MusicComponent } from "../Animations/Animations";
 import { TbFlagCancel } from "react-icons/tb";
 import { GiCrossMark } from "react-icons/gi";
+import { number } from "yup";
 
 const stripePromise = loadStripe("pk_test_51QrZQjRsLvU29ywLCYaTBkil7DdpMb1E62Pwh7MFMI3L27zMFiY9VWLeR2wKTVhbbkS0M2ZQ0lgbARlepsanAwaz00i46qB47L");
 const appearance = {
@@ -69,7 +70,7 @@ const TotalQuantity = (cart) => {
 
 const Checkout = () => {
   const [loading, setLoading] = useState(false);
-  const { cart, total, BASE_URL } = useCart();
+  const { cart, total, BASE_URL, user } = useCart();
   const [cartData, setCart] = useState([]);
   const [totalprice, setTotal] = useState(0);
   const navigate = useNavigate();
@@ -81,8 +82,8 @@ const Checkout = () => {
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [info, SetInfo] = useState({
-    username: '',
-    email: '',
+    username: user.name,
+    email: user.email,
     address: '',
     city: '',
     country: ''
@@ -93,6 +94,7 @@ const Checkout = () => {
   })
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     if (localStorage.getItem('admin')) {
       navigate('/')
     }
@@ -116,7 +118,6 @@ const Checkout = () => {
       if (total !== 0) {
         getClientSecret(total);
       }
-      window.scrollTo(0, 0);
       setLoading(true);
       setTimeout(() => {
         setCart(cart);
@@ -138,13 +139,28 @@ const Checkout = () => {
 
   async function paymentHandler(e) {
     e.preventDefault();
+    const numberElement = elements.getElement(CardNumberElement)
+    const numberComplete = numberElement._complete
+    const numberEmpty = numberElement._empty
+    const dateElement = elements.getElement(CardExpiryElement)
+    const dateComplete = dateElement._complete
+    const dateEmpty = dateElement._empty
+    const cvcElement = elements.getElement(CardCvcElement)
+    const cvcComplete = cvcElement._complete
+    const cvcEmpty = cvcElement._empty
     if (!info.email || !info.address || !info.username || !info.city || !info.country) {
       setErrorMsg2("Provide Every Information")
       document.getElementsByClassName('errorMsg')[0].style.display = "flex"
       return
     }
-    if (!pay.isCVC || !pay.isNumber || !pay.isDate) {
+    if (cvcEmpty || dateEmpty || numberEmpty) {
       setErrorMsg('Enter Card Details')
+      document.getElementsByClassName('errorMsg')[0].style.display = "flex"
+      setErrorMsg2('')
+      return
+    }
+    if (!cvcComplete || !dateComplete || !numberElement) {
+      setErrorMsg('Enter Valid Details')
       document.getElementsByClassName('errorMsg')[0].style.display = "flex"
       setErrorMsg2('')
       return
@@ -233,7 +249,6 @@ const Checkout = () => {
     SetInfo({ ...info, [e.target.name]: e.target.value })
   }
 
-
   return (
     <div className="fullCart" style={{ marginTop: '0' }}>
       {!loading ? (
@@ -279,6 +294,7 @@ const Checkout = () => {
                             type="email"
                             name="email"
                             placeholder="Email"
+                            value={info.email}
                             onChange={(e) => handleInfoChange(e)}
                           />
                         </div>
@@ -286,6 +302,7 @@ const Checkout = () => {
                           <label htmlFor="cardExpiry"> Name</label>
                           <input
                             type="text"
+                            value={info.username}
                             name="username"
                             placeholder="Name"
                             onChange={(e) => handleInfoChange(e)}
@@ -426,7 +443,9 @@ const Checkout = () => {
 };
 
 const Payment = () => {
-
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   return (
     <Elements stripe={stripePromise}>
       <Checkout />

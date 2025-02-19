@@ -38,7 +38,7 @@ function App() {
         <Route path='/product/:id' element={<Product />} />
         <Route path='/profile/:id' element={<Profile />} />
         <Route path='/search/:q' element={<Search />} />
-        <Route path='/checkout' element={<Checkout />} />
+        <Route path='/checkout' element={<Payment />} />
         <Route path='/confirm' element={<Confirmed />} />
         <Route path='/user/order/orderhistory' element={<OrderHistory />} />
         <Route path='/checkout2' element={<Payment />} />
